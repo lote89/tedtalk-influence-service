@@ -1,68 +1,110 @@
-# Simple TED Talks Influence API
+TedTalk Influence Service:-
+A Spring Boot backend service that imports TED Talks data and analyzes speaker influence based on engagement metrics such as views and likes.
 
-This is a minimal Spring Boot application created for the iO Java Assessment.  
-It focuses on simplicity and clarity to stay within the 4-hour guideline.
+The goal of this service is to:-
+Import TED Talks data from a CSV file
+Provide basic data management capabilities
+Analyze speaker influence
+Optionally determine the most influential TED Talk per year
 
-## Features
+Tech Stack:-
+Java 17
+Spring Boot
+Spring Web
+Spring Data JPA
+H2 (in-memory database)
+Maven
 
-- Import a CSV containing TED Talk data:
-  - title
-  - author (mapped to speaker)
-  - date
-  - views
-  - likes
-  - link
+How to Run the Project:-
 
-- Store talks in an in-memory H2 database (no setup needed)
+Prerequisites:-
+Java 17+
+Maven 3+
 
-- Calculate a simple influence score:
-  score = views * 0.7 + likes * 0.3
-  
-- Expose three REST endpoints:
-
-| Method | Endpoint         | Description               |
-|--------|------------------|---------------------------|
-| POST   | /api/import      | Upload a CSV file         |
-| GET    | /api/talks       | List all TED Talks        |
-| GET    | /api/influence   | Speaker influence ranking |
-
-## Assumptions
-
-- CSV headers match the provided dataset  
-- author is mapped internally to the domain field speaker 
-- Date field may be missing or unable to parse  
-- Views/likes may contain commas or characters → cleaned automatically  
-- Focus is on clarity over complexity due to the timebox  
-
-## How to Run 
-
-If you want to run the project locally:
+Run locally:-
 mvn spring-boot:run
 
-The API will be available at:
-http://localhost:8080/api
+The application will start at:-
+http://localhost:8080
 
-##  Why this design?
+H2 Console:-
+http://localhost:8080/h2-console
 
-- **Simplicity:** Lightweight implementation that solves the core requirements  
-- **Records:** Clean and minimal DTOs  
-- **H2 Database:** Zero configuration, ideal for assessments  
-- **Straightforward influence formula:** Easy to justify and explain  
+JDBC URL:-
+jdbc:h2:mem:testdb
 
-## Note
+1.Data Import:-
+TED Talks data is imported from a provided CSV file.
+Endpoint
+POST /api/import
 
-The CSV file is **not** included in the project.  
-It is uploaded by the user at runtime via the /api/import endpoint.
 
-## Not Included
+Accepts a CSV file via multipart upload,Parses TED Talk records,Persists them into the in-memory database
+Example:
+curl -F "file=@iO Data - Java assessment" http://localhost:8080/api/import
 
-To keep the solution within the 4-hour timebox, the following items were not included:
+2.Data Management (CRUD)
 
-- Postman collection  
-- Automated test cases  
+Basic CRUD operations are provided to manage TED Talks after import.
+Endpoints
+GET	/api/talks	List all TED Talks
+GET	/api/talks/{id}	Get a TED Talk by ID
+POST	/api/talks	Create a TED Talk
+PUT	/api/talks/{id}	Update a TED Talk (partial allowed)
+DELETE	/api/talks/{id}	Delete a TED Talk
 
-The API is simple enough to test manually using curl or any REST client, and the
-core focus was placed on CSV import, data storage, and influence calculation.
+Example: Create a TED Talk
+curl -X POST http://localhost:8080/api/talks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "The power of curiosity",
+    "speaker": "Jane Doe",
+    "year": 2019,
+    "views": 150000,
+    "likes": 3000,
+    "url": "https://www.ted.com/talks/example"
+  }'
+  
+3.Speaker Influence Analysis:-
+Influence Definition
+Speaker influence is calculated using a simple weighted formula:
+influence score = (views × 0.7) + (likes × 0.3)
+
+Rationale
+Views represent reach
+Likes represent engagement quality
+The formula is intentionally simple and easy to reason about for an MVP
+
+Speaker Influence Ranking
+GET /api/influence: Returns a list of speakers ranked by aggregated influence score, including:
+Total influence score
+Total views
+Total likes
+Number of talks
+
+Most influential talk for a specific year:-
+GET /api/influence/year/{year}
+
+Most influential talk per year (all years):-
+GET /api/influence/by-year
+Each TED Talk’s influence score is calculated using the same formula, and the top talk per year is selected.
+
+Design Decisions & Assumptions:-
+  1.The choices below were made intentionally to balance clarity, reviewability, and time constraints of the assignment.
+  2.MVP Scope:-
+              The project was scoped as a Minimum Viable Product
+  3.Focus was placed on correctness, readability, and clear separation of responsibilities
+  4.Persistence:-
+              An H2 in-memory database was chosen to avoid external dependencies and simplify setup for reviewers
+
+  5.DTO Design (Java Records):- DTOs are implemented using Java record classes,Records clearly express immutability and intent,Validation annotations are applied      directly to record components to enforce API-level constraints
+  6.Validation:-Input validation is performed at the API boundary using Jakarta Bean Validation,Invalid requests return 400 Bad Request
+  7.Influence Analysis:-Influence is not normalized by year,Older talks with very high view counts may dominate rankings,This was accepted as a reasonable trade-      off for MVP clarity
+  8.Error Handling:-Simple HTTP status-based error handling (404 for missing resources),No custom exception hierarchy was added to keep the solution lightweight
+  9.Testing:-Automated tests are intentionally omitted due to time constraints
+
+
+
 
 
 
