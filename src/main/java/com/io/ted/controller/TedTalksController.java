@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
@@ -52,23 +53,22 @@ public class TedTalksController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
     @PostMapping("/talks")
-    public ResponseEntity<TedTalk> create(@RequestBody TedTalkDto dto) {
-        TedTalk talk = new TedTalk(
-                dto.title(),
-                dto.speaker(),
-                dto.year(),
-                dto.views(),
-                dto.likes(),
-                dto.url()
-        );
-        TedTalk saved = repo.save(talk);
-        return ResponseEntity.created(URI.create("/api/talks/" + saved.getId())).body(saved);
-    }
+    public ResponseEntity<TedTalk> create(@Valid @RequestBody TedTalkDto dto) {
+    TedTalk talk = new TedTalk(
+            dto.title(),
+            dto.speaker(),
+            dto.year(),
+            dto.views(),
+            dto.likes(),
+            dto.url()
+    );
+    TedTalk saved = repo.save(talk);
+    return ResponseEntity.created(URI.create("/api/talks/" + saved.getId())).body(saved);
+}
 
     @PutMapping("/talks/{id}")
-    public ResponseEntity<TedTalk> update(@PathVariable Long id, @RequestBody TedTalkDto dto) {
+    public ResponseEntity<TedTalk> update(@PathVariable Long id,@Valid @RequestBody TedTalkDto dto){
         return repo.findById(id).map(t -> {
             if (dto.title() != null) t.setTitle(dto.title());
             if (dto.speaker() != null) t.setSpeaker(dto.speaker());
