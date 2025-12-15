@@ -30,12 +30,12 @@ public class TedTalkService {
 
     public TedTalk update(Long id, TedTalkDto dto) {
         TedTalk t = repo.findById(id).orElseThrow(() -> new NoSuchElementException("Talk not found: " + id));
-        if (dto.getTitle() != null) t.setTitle(dto.getTitle());
-        if (dto.getSpeaker() != null) t.setSpeaker(dto.getSpeaker());
-        if (dto.getYear() != null) t.setYear(dto.getYear());
-        if (dto.getViews() != null) t.setViews(dto.getViews());
-        if (dto.getLikes() != null) t.setLikes(dto.getLikes());
-        if (dto.getUrl() != null) t.setUrl(dto.getUrl());
+        if (dto.title() != null) t.setTitle(dto.title());
+        if (dto.speaker() != null) t.setSpeaker(dto.speaker());
+        if (dto.year() != null) t.setYear(dto.year());
+        if (dto.views() != null) t.setViews(dto.views());
+        if (dto.likes() != null) t.setLikes(dto.likes());
+        if (dto.url() != null) t.setUrl(dto.url());
         return repo.save(t);
     }
 
