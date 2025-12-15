@@ -94,16 +94,15 @@ Design Decisions & Assumptions:-
 
   1.The choices below were made intentionally to balance clarity, reviewability, and time constraints of the assignment.
   2.MVP Scope:-
-              The project was scoped as a Minimum Viable Product
-  3.Focus was placed on correctness, readability, and clear separation of responsibilities
+              The project was scoped as a Minimum Viable Product.
+  3.Focus was placed on correctness, readability, and clear separation of responsibilities.
   4.Persistence:-
-              An H2 in-memory database was chosen to avoid external dependencies and simplify setup 
-
-  5.DTO Design (Java Records):- DTOs are implemented using Java record classes,Records clearly express immutability and intent,Validation annotations are applied      directly to record components to enforce API-level constraints
-  6.Validation:-Input validation is performed at the API boundary using Jakarta Bean Validation,Invalid requests return 400 Bad Request
-  7.Influence Analysis:-Influence is not normalized by year,Older talks with very high view counts may dominate rankings,This was accepted as a reasonable trade-      off for MVP clarity
-  8.Error Handling:-Simple HTTP status-based error handling (404 for missing resources),No custom exception hierarchy was added to keep the solution lightweight
-  9.Testing:-Automated tests are intentionally omitted due to time constraints
+              An H2 in-memory database was chosen to avoid external dependencies and simplify setup.
+  5.DTO Design (Java Records):- DTOs are implemented using Java record classes,Records clearly express immutability and intent,Validation annotations are applied      directly to record components to enforce API-level constraints.
+  6.Validation:-Input validation is performed at the API boundary using Jakarta Bean Validation,Invalid requests return 400 Bad Request.
+  7.Influence Analysis:-Influence is not normalized by year,Older talks with very high view counts may dominate rankings,This was accepted as a reasonable trade-      off for MVP clarity.
+  8.Error Handling:-Simple HTTP status-based error handling (404 for missing resources),No custom exception hierarchy was added to keep the solution lightweight.
+  9.Testing:-Automated tests are intentionally omitted due to time constraints.
 
 
 
