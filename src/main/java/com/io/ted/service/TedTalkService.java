@@ -1,7 +1,7 @@
 package com.io.ted.service;
 
 import com.io.ted.model.TedTalk;
-import com.io.ted.repo.TedTalkRepository;
+import com.io.ted.repository.TedTalksRepository;
 import com.io.ted.dto.InfluenceDto;
 import com.io.ted.dto.TedTalkDto;
 import org.springframework.stereotype.Service;
@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class TedTalkService {
 
-    private final TedTalkRepository repo;
+    private final TedTalksRepository repo;
     private static final double VIEWS_WEIGHT = 0.7;
     private static final double LIKES_WEIGHT = 0.3;
 
-    public TedTalkService(TedTalkRepository repo) {
+    public TedTalkService(TedTalksRepository repo) {
         this.repo = repo;
     }
 
@@ -50,30 +50,32 @@ public class TedTalkService {
         return views * VIEWS_WEIGHT + likes * LIKES_WEIGHT;
     }
 
-    // Speaker influence: aggregate all talks per speaker (sum scores) and return sorted list
-    public List<InfluenceDto> speakerInfluenceRanking() {
-        Map<String, Double> scoreBySpeaker = new HashMap<>();
-        Map<String, Long> totalViewsBySpeaker = new HashMap<>();
-        Map<String, Long> totalLikesBySpeaker = new HashMap<>();
-        Map<String, Integer> talksCount = new HashMap<>();
+   public List<InfluenceDto> speakerInfluenceRanking() {
+    Map<String, Double> scoreBySpeaker = new HashMap<>();
+    Map<String, Long> totalViewsBySpeaker = new HashMap<>();
+    Map<String, Long> totalLikesBySpeaker = new HashMap<>();
+    Map<String, Integer> talksCount = new HashMap<>();
 
-        for (TedTalk t : repo.findAll()) {
-            String speaker = (t.getSpeaker() == null) ? "Unknown" : t.getSpeaker();
-            double score = influenceScore(t);
-            scoreBySpeaker.merge(speaker, score, Double::sum);
-            totalViewsBySpeaker.merge(speaker, (t.getViews() == null ? 0L : t.getViews()), Long::sum);
-            totalLikesBySpeaker.merge(speaker, (t.getLikes() == null ? 0L : t.getLikes()), Long::sum);
-            talksCount.merge(speaker, 1, Integer::sum);
-        }
-
-        return scoreBySpeaker.entrySet().stream()
-                .map(e -> new InfluenceDto(e.getKey(), e.getValue(),
-                        totalViewsBySpeaker.getOrDefault(e.getKey(), 0L),
-                        totalLikesBySpeaker.getOrDefault(e.getKey(), 0L),
-                        talksCount.getOrDefault(e.getKey(), 0)))
-                .sorted(Comparator.comparingDouble(InfluenceDto::getScore).reversed())
-                .collect(Collectors.toList());
+    for (TedTalk t : repo.findAll()) {
+        String speaker = (t.getSpeaker() == null) ? "Unknown" : t.getSpeaker();
+        double score = influenceScore(t);
+        scoreBySpeaker.merge(speaker, score, Double::sum);
+        totalViewsBySpeaker.merge(speaker, (t.getViews() == null ? 0L : t.getViews()), Long::sum);
+        totalLikesBySpeaker.merge(speaker, (t.getLikes() == null ? 0L : t.getLikes()), Long::sum);
+        talksCount.merge(speaker, 1, Integer::sum);
     }
+
+    return scoreBySpeaker.entrySet().stream()
+            .map(e -> new InfluenceDto(
+                    e.getKey(),
+                    e.getValue(),
+                    totalViewsBySpeaker.getOrDefault(e.getKey(), 0L),
+                    totalLikesBySpeaker.getOrDefault(e.getKey(), 0L),
+                    talksCount.getOrDefault(e.getKey(), 0)
+            ))
+            .sorted(Comparator.comparingDouble(InfluenceDto::score).reversed())
+            .collect(Collectors.toList());
+}
 
     // Most influential talk for a single year
     public Optional<TedTalk> mostInfluentialTalkForYear(int year) {
@@ -86,6 +88,6 @@ public class TedTalkService {
         return repo.findAll().stream()
                 .filter(t -> t.getYear() != null)
                 .collect(Collectors.groupingBy(TedTalk::getYear,
-                        Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparingDouble(this::influenceScore)), Optional::orElse)));
+                        Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparingDouble(this::influenceScore)),opt -> opt.orElse(null))));
     }
 }
