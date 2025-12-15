@@ -87,15 +87,17 @@ GET /api/influence/year/{year}
 
 Most influential talk per year (all years):-
 GET /api/influence/by-year
+
 Each TED Talk’s influence score is calculated using the same formula, and the top talk per year is selected.
 
 Design Decisions & Assumptions:-
+
   1.The choices below were made intentionally to balance clarity, reviewability, and time constraints of the assignment.
   2.MVP Scope:-
               The project was scoped as a Minimum Viable Product
   3.Focus was placed on correctness, readability, and clear separation of responsibilities
   4.Persistence:-
-              An H2 in-memory database was chosen to avoid external dependencies and simplify setup for reviewers
+              An H2 in-memory database was chosen to avoid external dependencies and simplify setup 
 
   5.DTO Design (Java Records):- DTOs are implemented using Java record classes,Records clearly express immutability and intent,Validation annotations are applied      directly to record components to enforce API-level constraints
   6.Validation:-Input validation is performed at the API boundary using Jakarta Bean Validation,Invalid requests return 400 Bad Request
