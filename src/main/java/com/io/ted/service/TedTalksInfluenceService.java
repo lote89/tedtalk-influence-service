@@ -6,6 +6,7 @@ import com.io.ted.repository.TedTalksRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TedTalksInfluenceService {
@@ -38,5 +39,35 @@ public class TedTalksInfluenceService {
 
         list.sort((a, b) -> Double.compare(b.influence(), a.influence()));
         return list;
+    }
+
+
+    // Most influential TED Talk for a specific year
+    public Optional<TedTalk> mostInfluentialTalkForYear(int year) {
+        return repo.findAll().stream()
+                .filter(t -> t.getYear() != null && t.getYear() == year)
+                .max(Comparator.comparingDouble(this::score));
+    }
+
+    // Most influential TED Talk per year (all years)
+    public Map<Integer, TedTalk> mostInfluentialTalkPerYear() {
+        return repo.findAll().stream()
+                .filter(t -> t.getYear() != null)
+                .collect(Collectors.groupingBy(
+                        TedTalk::getYear,
+                        Collectors.collectingAndThen(
+                                Collectors.maxBy(Comparator.comparingDouble(this::score)),
+                                opt -> opt.orElse(null)   // fix Optional::orElse error
+                        )
+                ));
+    }
+
+ 
+
+    // Influence score for a single talk
+    private double score(TedTalk t) {
+        long views = t.getViews() == null ? 0 : t.getViews();
+        long likes = t.getLikes() == null ? 0 : t.getLikes();
+        return views * 0.7 + likes * 0.3;
     }
 }
